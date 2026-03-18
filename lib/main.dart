@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// 로그인 화면
+// ==================== 로그인 화면 ====================
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
   @override
@@ -45,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (role == 1) nextScreen = const CustomerScreen();
     else if (role == 2) nextScreen = const StaffScreen();
-    else if (role == 3) nextScreen = const AdminScreen();
+    else if (role == 3) nextScreen = const AdminMenuScreen();   // ← 여기서 관리자 메뉴로 이동
     else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('ID가 잘못됐어요')));
       return;
@@ -75,37 +75,44 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-// 직원 화면
-class StaffScreen extends StatelessWidget {
-  const StaffScreen({super.key});
+// ==================== 관리자 메뉴 화면 (원래대로 복구) ====================
+class AdminMenuScreen extends StatelessWidget {
+  const AdminMenuScreen({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Task')),
+      appBar: AppBar(title: const Text('관리자 메뉴')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChangePasswordScreen())), child: const Text('My account')),
-                ElevatedButton(onPressed: () {}, child: const Text('Information')),
-              ],
+            const Text('관리자 메뉴', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {},
+              child: const Text('매출 관리'),
             ),
-            const SizedBox(height: 30),
-            const Text('Task', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-            ElevatedButton(onPressed: () {}, child: const Text('Sales')),
             const SizedBox(height: 12),
-            ElevatedButton(onPressed: () {}, child: const Text('Working time checking')),
+            ElevatedButton(
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EmployeeManagementScreen())),
+              child: const Text('직원 관리'),
+            ),
             const SizedBox(height: 12),
-            ElevatedButton(onPressed: () {}, child: const Text('Notices')),
+            ElevatedButton(
+              onPressed: () {},
+              child: const Text('공지사항 관리'),
+            ),
             const SizedBox(height: 12),
-            ElevatedButton(onPressed: () {}, child: const Text("Today's my tasks")),
+            ElevatedButton(
+              onPressed: () {},
+              child: const Text('설정'),
+            ),
             const Spacer(),
-            OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('Logout')),
+            OutlinedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('로그아웃'),
+            ),
           ],
         ),
       ),
@@ -113,25 +120,27 @@ class StaffScreen extends StatelessWidget {
   }
 }
 
-// 관리자 화면 (직원 목록 + 추가 버튼)
-class AdminScreen extends StatefulWidget {
-  const AdminScreen({super.key});
+// ==================== 직원 관리 화면 (목록 + 추가 버튼) ====================
+class EmployeeManagementScreen extends StatefulWidget {
+  const EmployeeManagementScreen({super.key});
   @override
-  State<AdminScreen> createState() => _AdminScreenState();
+  State<EmployeeManagementScreen> createState() => _EmployeeManagementScreenState();
 }
 
-class _AdminScreenState extends State<AdminScreen> {
+class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
   final List<Map<String, dynamic>> _employees = [];
 
   void _addEmployee() async {
     final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => const EmployeeFormScreen()));
-    if (result != null) setState(() => _employees.add(result));
+    if (result != null) {
+      setState(() => _employees.add(result));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('관리자 - 직원 관리')),
+      appBar: AppBar(title: const Text('직원 관리')),
       body: ListView.builder(
         itemCount: _employees.length,
         itemBuilder: (context, index) {
@@ -139,37 +148,29 @@ class _AdminScreenState extends State<AdminScreen> {
           return ListTile(
             title: Text('${e['name'] ?? "이름 없음"} (ID: ${e['id']})'),
             subtitle: Text('전화: ${e['phone'] ?? '-'} | 역할: ${e['role']}'),
-            trailing: const Icon(Icons.edit),
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(onPressed: _addEmployee, child: const Icon(Icons.add)),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _addEmployee,
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
 
-// 직원 추가 화면 (이름, 전화번호 완전 표시 - 문제 해결 완료!)
+// ==================== 직원 추가 화면 (이름·전화번호 완전 표시) ====================
 class EmployeeFormScreen extends StatefulWidget {
-  final Map? employee;
-  const EmployeeFormScreen({super.key, this.employee});
+  const EmployeeFormScreen({super.key});
   @override
   State<EmployeeFormScreen> createState() => _EmployeeFormScreenState();
 }
 
 class _EmployeeFormScreenState extends State<EmployeeFormScreen> {
-  late TextEditingController _nameController;
-  late TextEditingController _phoneController;
-  late TextEditingController _passwordController;
-  late int _role;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController(text: widget.employee?['name'] ?? '');
-    _phoneController = TextEditingController(text: widget.employee?['phone'] ?? '');
-    _passwordController = TextEditingController(text: widget.employee?['password'] ?? '');
-    _role = widget.employee?['role'] ?? 2;
-  }
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _passwordController = TextEditingController();
+  int _role = 2;
 
   void _save() {
     final data = {
@@ -215,6 +216,7 @@ class _EmployeeFormScreenState extends State<EmployeeFormScreen> {
   }
 }
 
-// 나머지 화면
+// ==================== 나머지 화면 ====================
+class StaffScreen extends StatelessWidget { const StaffScreen({super.key}); @override Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('직원 화면'))); }
 class CustomerScreen extends StatelessWidget { const CustomerScreen({super.key}); @override Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('고객 화면'))); }
-class ChangePasswordScreen extends StatelessWidget { const ChangePasswordScreen({super.key}); @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('비밀번호 변경')), body: const Center(child: Text('비밀번호 변경 화면'))); }
+class ChangePasswordScreen extends StatelessWidget { const ChangePasswordScreen({super.key}); @override Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('비밀번호 변경 화면'))); }
