@@ -45,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (role == 1) nextScreen = const CustomerScreen();
     else if (role == 2) nextScreen = const StaffScreen();
-    else if (role == 3) nextScreen = const AdminMenuScreen();   // ← 여기서 관리자 메뉴로 이동
+    else if (role == 3) nextScreen = const AdminMenuScreen();
     else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('ID가 잘못됐어요')));
       return;
@@ -75,7 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-// ==================== 관리자 메뉴 화면 (원래대로 복구) ====================
+// ==================== 관리자 메뉴 화면 (원래 4개 메뉴 복구) ====================
 class AdminMenuScreen extends StatelessWidget {
   const AdminMenuScreen({super.key});
   @override
@@ -88,25 +88,25 @@ class AdminMenuScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text('관리자 메뉴', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
             ElevatedButton(
-              onPressed: () {},
-              child: const Text('매출 관리'),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProductManagementScreen())),
+              child: const Text('제품관리'),
             ),
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EmployeeManagementScreen())),
-              child: const Text('직원 관리'),
+              child: const Text('직원관리'),
             ),
             const SizedBox(height: 12),
             ElevatedButton(
-              onPressed: () {},
-              child: const Text('공지사항 관리'),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CustomerManagementScreen())),
+              child: const Text('고객관리'),
             ),
             const SizedBox(height: 12),
             ElevatedButton(
-              onPressed: () {},
-              child: const Text('설정'),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RawMaterialCostScreen())),
+              child: const Text('원료원가관리'),
             ),
             const Spacer(),
             OutlinedButton(
@@ -120,7 +120,13 @@ class AdminMenuScreen extends StatelessWidget {
   }
 }
 
-// ==================== 직원 관리 화면 (목록 + 추가 버튼) ====================
+// ==================== 각 메뉴 화면 (플레이스홀더지만 정상 이동) ====================
+class ProductManagementScreen extends StatelessWidget {
+  const ProductManagementScreen({super.key});
+  @override
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('제품관리')), body: const Center(child: Text('제품 관리 화면\n(제품 등록, 재고, 가격 관리 등)')));
+}
+
 class EmployeeManagementScreen extends StatefulWidget {
   const EmployeeManagementScreen({super.key});
   @override
@@ -132,15 +138,13 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
 
   void _addEmployee() async {
     final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => const EmployeeFormScreen()));
-    if (result != null) {
-      setState(() => _employees.add(result));
-    }
+    if (result != null) setState(() => _employees.add(result));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('직원 관리')),
+      appBar: AppBar(title: const Text('직원관리')),
       body: ListView.builder(
         itemCount: _employees.length,
         itemBuilder: (context, index) {
@@ -151,12 +155,21 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addEmployee,
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: FloatingActionButton(onPressed: _addEmployee, child: const Icon(Icons.add)),
     );
   }
+}
+
+class CustomerManagementScreen extends StatelessWidget {
+  const CustomerManagementScreen({super.key});
+  @override
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('고객관리')), body: const Center(child: Text('고객 관리 화면\n(포인트, 주문 내역 관리 등)')));
+}
+
+class RawMaterialCostScreen extends StatelessWidget {
+  const RawMaterialCostScreen({super.key});
+  @override
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('원료원가관리')), body: const Center(child: Text('원료원가 관리 화면\n(원가 계산, 재고 원가 관리 등)')));
 }
 
 // ==================== 직원 추가 화면 (이름·전화번호 완전 표시) ====================
